@@ -1,0 +1,16 @@
+<div class="page article-page">
+    <div class="header-meta">TECHPRESSO // PAGE {{ loop.index + 1 }}</div>
+    <h2 class="article-title">{{ article.title }}</h2>
+    
+    {% if article.image %}
+    <img src="{{ article.image }}" class="featured-image">
+    {% endif %}
+
+    <div class="content-body">
+        {% for para in article.paragraphs %}
+        <p class="bullet-item">{{ para }}</p>
+        {% endfor %}
+    </div>
+    
+    <div class="source-bar">Original Source: {{ article.source_url[:60] }}...</div>
+</div>
