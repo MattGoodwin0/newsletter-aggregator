@@ -1,0 +1,19 @@
+<div class="article-page">
+  {% if article.image %}
+  <div class="article-image">
+    <img src="{{ article.image }}" alt="{{ article.title }}" />
+  </div>
+  {% endif %}
+  <div class="article-body">
+    <div class="source-bar">{{ article.feed }} · {{ article.date }}</div>
+    <h2 class="article-title">{{ article.title }}</h2>
+    {% if article.authors %}
+    <p class="article-byline">By {{ article.authors | join(", ") }}</p>
+    {% endif %}
+    {% for para in article.paragraphs %}
+    <p class="article-para">{{ para }}</p>
+    {% endfor %}
+    <div class="source-bar">Original Source: {{ article.source_url[:60] }}...</div>
+  </div>
+</div>
+<div class="page-break"></div>
