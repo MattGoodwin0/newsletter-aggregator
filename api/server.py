@@ -7,7 +7,7 @@ import asyncio
 import tempfile
 import feedparser
 import requests
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 from main import fetch_articles, build_pdf, scrape_article
 
@@ -164,6 +164,13 @@ def generate():
 
     return send_file(pdf_path, mimetype="application/pdf", as_attachment=True, download_name="Tech_Weekly_Pro.pdf")
 
+@app.get("/")
+def index():
+    return send_from_directory("../frontend/dist", "index.html")
+
+@app.get("/<path:path>")
+def static_files(path):
+    return send_from_directory("../frontend/dist", path)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5002)), debug=os.getenv("FLASK_DEBUG", "false") == "true")
