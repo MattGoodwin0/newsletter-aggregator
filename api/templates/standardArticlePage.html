@@ -1,19 +1,49 @@
 <div class="article-page">
+
+  <!-- Top accent stripe -->
+  <div class="article-stripe"></div>
+
+  <!-- Running header -->
+  <div class="article-running-header">
+    <span class="article-running-brand">Digest</span>
+    <span class="article-running-date">{{ date.strftime("%B %d, %Y") }}</span>
+  </div>
+
+  <!-- Hero image (optional) -->
   {% if article.image %}
   <div class="article-image">
     <img src="{{ article.image }}" alt="{{ article.title }}" />
   </div>
   {% endif %}
+
+  <!-- Article body -->
   <div class="article-body">
-    <div class="source-bar">{{ article.feed }} · {{ article.date }}</div>
+
+    <!-- Source / feed metadata -->
+    <div class="article-meta">
+      <span class="article-feed-badge">{{ article.feed }}</span>
+      <span class="article-meta-date">{{ article.date }}</span>
+    </div>
+
+    <!-- Headline -->
     <h2 class="article-title">{{ article.title }}</h2>
+
+    <!-- Byline -->
     {% if article.authors %}
     <p class="article-byline">By {{ article.authors | join(", ") }}</p>
     {% endif %}
+
+    <!-- Body paragraphs -->
     {% for para in article.paragraphs %}
     <p class="article-para">{{ para }}</p>
     {% endfor %}
-    <div class="source-bar">Original Source: {{ article.source_url[:60] }}...</div>
+
+    <!-- Footer source link -->
+    <div class="article-footer">
+      <span class="article-footer-label">Original Source</span>
+      <span class="article-footer-url">{{ article.source_url }}</span>
+    </div>
+
   </div>
 </div>
 <div class="page-break"></div>
