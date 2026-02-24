@@ -1,0 +1,20 @@
+providers = ["python", "node"]
+
+[phases.setup]
+nixPkgs = ["python311", "nodejs_20"]
+
+[phases.install]
+cmds = [
+  "pip install -r requirements.txt",
+  "cd frontend && npm install"
+]
+
+[phases.build]
+cmds = [
+  "cd frontend && npm run build",
+  "python -m playwright install chromium",
+  "python -m playwright install-deps chromium"
+]
+
+[start]
+cmd = "cd api && python -m gunicorn server:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
