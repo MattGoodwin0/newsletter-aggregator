@@ -15,7 +15,7 @@ export default function PageShell({ active, children }) {
       {children}
       <footer className="z-[1] pb-8 mt-auto">
         <p className="text-[11px] text-[#c7c7cc] tracking-[0.01em] text-center">
-          Digest · v0.1.0 · Built with newspaper3k, Playwright &amp; Jinja2
+          Serifdigest · v0.1.0 · Built with newspaper3k, Playwright &amp; Jinja2
         </p>
       </footer>
     </div>

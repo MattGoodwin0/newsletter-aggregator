@@ -1,5 +1,5 @@
 """
-Digest — Core scraper & PDF builder
+Serifdigest — Core scraper & PDF builder
 ------------------------------------
 Callable directly (CLI) or imported by server.py (API mode).
 """
@@ -163,13 +163,14 @@ async def build_pdf(articles: List[Dict], output_path: str = DEFAULT_OUTPUT) -> 
     )
 
     async with async_playwright() as p:
-        # Use nix-provided Chromium if available (production), else let Playwright find its own
-        import shutil
-        chromium_path = shutil.which("chromium") or shutil.which("chromium-browser")
-        launch_args = { "executable_path": chromium_path } if chromium_path else {}
-        browser = await p.chromium.launch(**launch_args)
+        browser = await p.chromium.launch()
+        page    = await browser.new_page()
+        await page.set_content(final_html)
+        await page.wait_for_timeout(3000)
+        await page.pdf(path=output_path, format="A4", print_background=True)
+        await browser.close()
 
-    print(f"✓ PDF saved → {output_path}")
+    print(f"✓ PDF saved → {output_path}", flush=True)
     return output_path
 
 

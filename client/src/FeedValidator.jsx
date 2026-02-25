@@ -163,7 +163,9 @@ export default function FeedValidator() {
         <h1 className="text-[clamp(32px,4.5vw,50px)] font-semibold leading-[1.08] tracking-[-0.03em] text-[#1d1d1f] mb-4">
           Will your feed
           <br />
-          <span className="font-light text-[#6e6e73]">work with Digest?</span>
+          <span className="font-light text-[#6e6e73]">
+            work with Serifdigest?
+          </span>
         </h1>
         <p className="text-[15px] text-[#6e6e73] leading-relaxed">
           Paste an RSS or Atom URL to check compatibility.

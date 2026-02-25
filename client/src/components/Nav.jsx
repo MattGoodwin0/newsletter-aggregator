@@ -19,9 +19,9 @@ export default function Nav({ active }) {
           <div className="w-[7px] h-[7px] rounded-full bg-[#1d1d1f]" />
           <a
             href="#"
-            className="text-[14px] font-medium text-[#1d1d1f] tracking-[-0.01em]"
+            className="text-[14px] font-serif font-medium text-[#1d1d1f] tracking-[-0.01em]"
           >
-            Digest
+            Serifdigest
           </a>
           {active && (
             <>

@@ -1,5 +1,5 @@
 """
-Digest API Server
+Serifdigest API Server
 """
 
 import os
