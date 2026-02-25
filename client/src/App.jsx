@@ -106,7 +106,7 @@ export default function App() {
   }, []); // eslint-disable-line
 
   useEffect(() => {
-    const res = fetch("/api/health")
+    const res = get("/api/health")
       .then((r) => {
         if (r.status !== 200) return r.json();
       })
