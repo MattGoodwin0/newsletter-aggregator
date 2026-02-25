@@ -3,6 +3,7 @@
 const BASE = import.meta.env.VITE_API_URL ?? "";
 
 export async function post(path, body) {
+  console.log("BASE", BASE);
   return fetch(`${BASE}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
