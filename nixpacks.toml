@@ -21,7 +21,7 @@ nixPkgs = [
   "xorg.libXrandr",
   "mesa",
   "xorg.libxcb",
-  "xkbcommon",
+  "libxkbcommon",
   "pango",
   "cairo",
   "alsa-lib",
