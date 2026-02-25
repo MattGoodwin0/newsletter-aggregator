@@ -1,0 +1,7 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cd api && python server.py"
+healthcheckPath = "/api/health"
+restartPolicyType = "on_failure"

@@ -1,20 +1,35 @@
-providers = ["python", "node"]
+providers = ["python"]
 
 [phases.setup]
-nixPkgs = ["python311", "nodejs_20"]
+nixPkgs = [
+  "python311",
+  "glib",
+  "nss",
+  "nspr",
+  "dbus",
+  "atk",
+  "at-spi2-atk",
+  "cups",
+  "libdrm",
+  "at-spi2-core",
+  "expat",
+  "xorg.libX11",
+  "xorg.libXcomposite",
+  "xorg.libXdamage",
+  "xorg.libXext",
+  "xorg.libXfixes",
+  "xorg.libXrandr",
+  "mesa",
+  "xorg.libxcb",
+  "xkbcommon",
+  "pango",
+  "cairo",
+  "alsa-lib",
+  "chromium"
+]
 
 [phases.install]
-cmds = [
-  "pip install -r requirements.txt",
-  "cd frontend && npm install"
-]
-
-[phases.build]
-cmds = [
-  "cd frontend && npm run build",
-  "python -m playwright install chromium",
-  "python -m playwright install-deps chromium"
-]
+cmds = ["pip install -r requirements.txt"]
 
 [start]
-cmd = "cd api && python -m gunicorn server:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
+cmd = "cd api && python server.py"
