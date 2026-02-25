@@ -8,7 +8,7 @@ export default defineConfig({
     proxy: {
       // Forward /api/* to Flask during development — no CORS needed
       "/api": {
-        target: env.VITE_API_URL || "http://localhost:5002",
+        target: process.env.VITE_API_URL || "http://localhost:5002",
         changeOrigin: true,
       },
     },
