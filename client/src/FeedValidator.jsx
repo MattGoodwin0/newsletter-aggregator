@@ -164,7 +164,7 @@ export default function FeedValidator() {
           Will your feed
           <br />
           <span className="font-light text-[#6e6e73]">
-            work with Serifdigest?
+            work with <span className="font-serif">Serif</span>digest?
           </span>
         </h1>
         <p className="text-[15px] text-[#6e6e73] leading-relaxed">
