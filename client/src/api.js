@@ -10,3 +10,12 @@ export async function post(path, body) {
     body: JSON.stringify(body),
   });
 }
+
+export async function get(path, body) {
+  console.log("BASE", BASE);
+  return fetch(`${BASE}${path}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}

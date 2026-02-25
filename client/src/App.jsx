@@ -12,7 +12,7 @@ import PageShell from "./components/PageShell.jsx";
 import Card from "./components/Card.jsx";
 import ProgressRing from "./components/ProgressRing.jsx";
 import FeedStatusIcon from "./components/FeedStatusIcon.jsx";
-import { post } from "./api.js";
+import { post, get } from "./api.js";
 
 const PRESETS = [
   {
@@ -89,7 +89,7 @@ export default function App() {
   const validateFeed = async (url) => {
     setFeedStatuses((s) => ({ ...s, [url]: "checking" }));
     try {
-      const res = await post("/api/validate", { url });
+      const res = await get("/api/validate", { url });
       const data = await res.json();
       setFeedStatuses((s) => ({ ...s, [url]: res.ok ? data.status : "error" }));
     } catch {
