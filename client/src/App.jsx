@@ -12,6 +12,7 @@ import PageShell from "./components/PageShell.jsx";
 import Card from "./components/Card.jsx";
 import ProgressRing from "./components/ProgressRing.jsx";
 import FeedStatusIcon from "./components/FeedStatusIcon.jsx";
+import { post } from "./api.js";
 
 const PRESETS = [
   {
@@ -83,11 +84,7 @@ export default function App() {
   const validateFeed = async (url) => {
     setFeedStatuses((s) => ({ ...s, [url]: "checking" }));
     try {
-      const res = await fetch("/api/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
+      const res = await post("/api/validate", { url });
       const data = await res.json();
       setFeedStatuses((s) => ({ ...s, [url]: res.ok ? data.status : "error" }));
     } catch {
@@ -148,11 +145,8 @@ export default function App() {
     stepTimer = setTimeout(advanceStep, 1400);
 
     try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ feeds, days_back: daysBack }),
-      });
+      const res = await post("/api/generate", { feeds, days_back: daysBack });
+
       clearTimeout(stepTimer);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: res.statusText }));
