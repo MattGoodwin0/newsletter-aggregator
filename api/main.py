@@ -114,6 +114,20 @@ def extract_all_meta_authors(soup: BeautifulSoup):
                 authors.add(tag["content"].strip())
     return list(authors)
 
+def get_rss_summary(entry) -> str:
+    """
+    Attempt to extract a summary from the RSS <content:encoded> field.
+    """
+    content = entry.get("content", [])
+    if content:
+        # content is usually a list of dicts with 'value' key
+        html = content[0].get("value", "")
+        if html:
+            soup = BeautifulSoup(html, "html.parser")
+            p = soup.find("p")
+            if p and p.get_text(strip=True):
+                return p.get_text(strip=True)
+    return ""
 
 def scrape_article(url: str, summary_sentences: int = DEFAULT_SUMMARY_SENTENCES) -> Dict:
     result: Dict = {
@@ -152,6 +166,18 @@ def scrape_article(url: str, summary_sentences: int = DEFAULT_SUMMARY_SENTENCES)
 
         if result["summary"]:
             result["summary"] = clean_text(result["summary"])
+        
+                # --- TEXT FALLBACK ---
+        if not result["summary"]:
+            paragraphs = [p.strip() for p in art.text.split("\n") if len(p.strip()) > 60]
+            if paragraphs:
+                result["summary"] = clean_text(" ".join(paragraphs[:summary_sentences]))
+            else:
+                # fallback to RSS content:encoded first paragraph
+                if "rss_entry" in locals():  # pass the feedparser entry here
+                    rss_summary = get_rss_summary(rss_entry)
+                    if rss_summary:
+                        result["summary"] = clean_text(rss_summary)
 
         # --- NEWSPAPER3K FALLBACK ---
         art = Article(url)
