@@ -45,6 +45,12 @@ export default function About() {
           One beautifully designed magazine. All your sources. End of the week,
           coffee in hand.
         </p>
+        <a
+          href="#roadmap"
+          className="inline-block mt-4 px-4 py-2 bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] text-[13px] font-medium rounded-[10px] transition-colors"
+        >
+          View changelog
+        </a>
       </section>
 
       {/* Content cards */}
