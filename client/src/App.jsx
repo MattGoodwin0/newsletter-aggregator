@@ -89,7 +89,7 @@ export default function App() {
   const validateFeed = async (url) => {
     setFeedStatuses((s) => ({ ...s, [url]: "checking" }));
     try {
-      const res = await get("/api/validate", { url });
+      const res = await post("/api/validate", { url });
       const data = await res.json();
       setFeedStatuses((s) => ({ ...s, [url]: res.ok ? data.status : "error" }));
     } catch {
