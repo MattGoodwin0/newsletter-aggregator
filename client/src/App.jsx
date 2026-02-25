@@ -23,18 +23,18 @@ const PRESETS = [
       "https://www.wired.com/feed/rss",
     ],
   },
+  // {
+  //   label: "Science",
+  //   feeds: [
+  //     "https://www.nasa.gov/rss/dyn/breaking_news.rss",
+  //     "https://www.sciencedaily.com/rss/top/science.xml",
+  //   ],
+  // },
   {
-    label: "Science",
+    label: "Product",
     feeds: [
-      "https://www.nasa.gov/rss/dyn/breaking_news.rss",
-      "https://www.sciencedaily.com/rss/top/science.xml",
-    ],
-  },
-  {
-    label: "Business",
-    feeds: [
-      "https://feeds.bloomberg.com/technology/news.rss",
-      "https://www.ft.com/?format=rss",
+      "https://www.producttalk.org/feed/",
+      "https://www.productleadership.com/feed/",
     ],
   },
   {

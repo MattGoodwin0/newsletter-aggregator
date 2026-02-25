@@ -1,476 +1,389 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Serifdigest — February 24, 2026 (Preview)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=DM+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digest — February 24, 2026 (Preview)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      :root {
-        --ink: #1a1614;
-        --ink-light: #4a4340;
-        --ink-muted: #8a7f7a;
-        --rule: #d4c9c0;
-        --cream: #faf7f4;
-        --paper: #eee8e1;
-        --accent: #c0392b;
+    :root {
+      --ink:        #1a1614;
+      --ink-light:  #4a4340;
+      --ink-muted:  #8a7f7a;
+      --rule:       #d4c9c0;
+      --cream:      #faf7f4;
+      --paper:      #eee8e1;
+      --accent:     #c0392b;
 
-        --font-display: "Playfair Display", Georgia, serif;
-        --font-body: "Source Serif 4", Georgia, serif;
-        --font-mono: "DM Mono", "Courier New", monospace;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'Source Serif 4', Georgia, serif;
+      --font-mono:    'DM Mono', 'Courier New', monospace;
 
-        --page-w: 210mm;
-        --page-h: 297mm;
-        --margin: 14mm;
-      }
+      --page-w:  210mm;
+      --page-h:  297mm;
+      --margin:  14mm;
+    }
 
-      html,
-      body {
-        background: var(--paper);
-        color: var(--ink);
-        font-family: var(--font-body);
-        font-size: 10pt;
-        line-height: 1.65;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        padding: 10mm;
-      }
+    html, body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 10pt;
+      line-height: 1.65;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      padding: 10mm;
+    }
 
-      /* Page wrapper for preview */
-      .page-preview {
-        margin-bottom: 12mm;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
-      }
+    /* Page wrapper for preview */
+    .page-preview {
+      margin-bottom: 12mm;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    }
 
-      .page-break {
-        page-break-after: always;
-        break-after: page;
-        height: 0;
-      }
+    .page-break {
+      page-break-after: always;
+      break-after: page;
+      height: 0;
+    }
 
-      /* ─── COVER ─────────────────────────────────────────────── */
-      .cover {
-        width: var(--page-w);
-        min-height: var(--page-h);
-        background: var(--ink);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-      }
+    /* ─── COVER ─────────────────────────────────────────────── */
+    .cover {
+      width: var(--page-w);
+      min-height: var(--page-h);
+      background: var(--ink);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-      .cover::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image:
-          repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 39px,
-            rgba(255, 255, 255, 0.035) 39px,
-            rgba(255, 255, 255, 0.035) 40px
-          ),
-          repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 39px,
-            rgba(255, 255, 255, 0.035) 39px,
-            rgba(255, 255, 255, 0.035) 40px
-          );
-        pointer-events: none;
-      }
+    .cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.035) 39px, rgba(255,255,255,0.035) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.035) 39px, rgba(255,255,255,0.035) 40px);
+      pointer-events: none;
+    }
 
-      .cover-accent-top {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4mm;
-        background: var(--accent);
-      }
+    .cover-accent-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4mm;
+      background: var(--accent);
+    }
 
-      .cover-corner {
-        position: absolute;
-        width: 18mm;
-        height: 18mm;
-      }
-      .cover-corner--br {
-        bottom: var(--margin);
-        right: var(--margin);
-        border-right: 1px solid rgba(255, 255, 255, 0.18);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-      }
-      .cover-corner--tl {
-        top: calc(var(--margin) + 5mm);
-        left: var(--margin);
-        border-left: 1px solid rgba(255, 255, 255, 0.18);
-        border-top: 1px solid rgba(255, 255, 255, 0.18);
-      }
+    .cover-corner {
+      position: absolute;
+      width: 18mm;
+      height: 18mm;
+    }
+    .cover-corner--br {
+      bottom: var(--margin); right: var(--margin);
+      border-right: 1px solid rgba(255,255,255,0.18);
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+    }
+    .cover-corner--tl {
+      top: calc(var(--margin) + 5mm); left: var(--margin);
+      border-left: 1px solid rgba(255,255,255,0.18);
+      border-top: 1px solid rgba(255,255,255,0.18);
+    }
 
-      .cover-inner {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        padding: var(--margin);
-      }
+    .cover-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: var(--margin);
+    }
 
-      .cover-eyebrow {
-        font-family: var(--font-mono);
-        font-size: 7pt;
-        letter-spacing: 0.28em;
-        text-transform: uppercase;
-        color: var(--accent);
-        margin-bottom: 7mm;
-      }
+    .cover-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 7pt;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 7mm;
+    }
 
-      .cover-title {
-        font-family: var(--font-display);
-        font-size: 80pt;
-        font-weight: 900;
-        line-height: 0.92;
-        color: var(--cream);
-        letter-spacing: -0.025em;
-        margin-bottom: 8mm;
-      }
+    .cover-title {
+      font-family: var(--font-display);
+      font-size: 80pt;
+      font-weight: 900;
+      line-height: 0.92;
+      color: var(--cream);
+      letter-spacing: -0.025em;
+      margin-bottom: 8mm;
+    }
 
-      .cover-rule {
-        width: 28mm;
-        height: 1px;
-        background: var(--accent);
-        margin: 0 auto 8mm;
-      }
+    .cover-rule {
+      width: 28mm;
+      height: 1px;
+      background: var(--accent);
+      margin: 0 auto 8mm;
+    }
 
-      .cover-date {
-        font-family: var(--font-display);
-        font-size: 14pt;
-        font-style: italic;
-        color: rgba(250, 247, 244, 0.55);
-        margin-bottom: 4mm;
-      }
+    .cover-date {
+      font-family: var(--font-display);
+      font-size: 14pt;
+      font-style: italic;
+      color: rgba(250,247,244,0.55);
+      margin-bottom: 4mm;
+    }
 
-      .cover-tagline {
-        font-family: var(--font-mono);
-        font-size: 6.5pt;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        color: rgba(250, 247, 244, 0.25);
-      }
+    .cover-tagline {
+      font-family: var(--font-mono);
+      font-size: 6.5pt;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(250,247,244,0.25);
+    }
 
-      /* ─── ARTICLE PAGE ──────────────────────────────────────── */
-      .article-page {
-        width: var(--page-w);
-        min-height: var(--page-h);
-        background: var(--cream);
-        display: flex;
-        flex-direction: column;
-      }
+    /* ─── ARTICLE PAGE ──────────────────────────────────────── */
+    .article-page {
+      width: var(--page-w);
+      min-height: var(--page-h);
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+    }
 
-      .article-stripe {
-        height: 3mm;
-        background: var(--accent);
-        flex-shrink: 0;
-      }
+    .article-stripe {
+      height: 3mm;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
 
-      .article-running-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 3.5mm var(--margin);
-        border-bottom: 1px solid var(--rule);
-        flex-shrink: 0;
-      }
+    .article-running-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3.5mm var(--margin);
+      border-bottom: 1px solid var(--rule);
+      flex-shrink: 0;
+    }
 
-      .article-running-brand {
-        font-family: var(--font-display);
-        font-size: 10.5pt;
-        font-weight: 700;
-        color: var(--ink);
-        letter-spacing: -0.01em;
-      }
+    .article-running-brand {
+      font-family: var(--font-display);
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
 
-      .article-running-date {
-        font-family: var(--font-mono);
-        font-size: 6pt;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--ink-muted);
-      }
+    .article-running-date {
+      font-family: var(--font-mono);
+      font-size: 6pt;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
 
-      .article-image {
-        width: 100%;
-        height: 68mm;
-        overflow: hidden;
-        flex-shrink: 0;
-        background: var(--paper);
-      }
+    .article-image {
+      width: 100%;
+      height: 68mm;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--paper);
+    }
 
-      .article-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
+    .article-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
 
-      .article-body {
-        padding: 7mm var(--margin) var(--margin);
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
+    .article-body {
+      padding: 7mm var(--margin) var(--margin);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
 
-      .article-meta {
-        display: flex;
-        align-items: center;
-        gap: 2.5mm;
-        margin-bottom: 4mm;
-      }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 2.5mm;
+      margin-bottom: 4mm;
+    }
 
-      .article-feed-badge {
-        font-family: var(--font-mono);
-        font-size: 6pt;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--cream);
-        background: var(--accent);
-        padding: 0.8mm 2.2mm;
-        border-radius: 0.6mm;
-      }
+    .article-feed-badge {
+      font-family: var(--font-mono);
+      font-size: 6pt;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cream);
+      background: var(--accent);
+      padding: 0.8mm 2.2mm;
+      border-radius: 0.6mm;
+    }
 
-      .article-meta-date {
-        font-family: var(--font-mono);
-        font-size: 6pt;
-        letter-spacing: 0.08em;
-        color: var(--ink-muted);
-      }
+    .article-meta-date {
+      font-family: var(--font-mono);
+      font-size: 6pt;
+      letter-spacing: 0.08em;
+      color: var(--ink-muted);
+    }
 
-      .article-title {
-        font-family: var(--font-display);
-        font-size: 23pt;
-        font-weight: 700;
-        line-height: 1.12;
-        letter-spacing: -0.02em;
-        color: var(--ink);
-        margin-bottom: 4mm;
-      }
+    .article-title {
+      font-family: var(--font-display);
+      font-size: 23pt;
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 4mm;
+    }
 
-      .article-byline {
-        font-family: var(--font-body);
-        font-size: 8.5pt;
-        font-style: italic;
-        color: var(--ink-light);
-        padding-bottom: 4.5mm;
-        margin-bottom: 4.5mm;
-        border-bottom: 1px solid var(--rule);
-      }
+    .article-byline {
+      font-family: var(--font-body);
+      font-size: 8.5pt;
+      font-style: italic;
+      color: var(--ink-light);
+      padding-bottom: 4.5mm;
+      margin-bottom: 4.5mm;
+      border-bottom: 1px solid var(--rule);
+    }
 
-      .article-para {
-        font-family: var(--font-body);
-        font-size: 9.5pt;
-        line-height: 1.72;
-        color: var(--ink);
-        margin-bottom: 3.5mm;
-        text-align: justify;
-        hyphens: auto;
-      }
+    .article-para {
+      font-family: var(--font-body);
+      font-size: 9.5pt;
+      line-height: 1.72;
+      color: var(--ink);
+      margin-bottom: 3.5mm;
+      text-align: justify;
+      hyphens: auto;
+    }
 
-      .article-para:first-of-type::first-letter {
-        font-family: var(--font-display);
-        font-size: 3.2em;
-        font-weight: 900;
-        line-height: 0.78;
-        float: left;
-        margin-right: 2mm;
-        margin-top: 1.5mm;
-        color: var(--accent);
-      }
+    .article-para:first-of-type::first-letter {
+      font-family: var(--font-display);
+      font-size: 3.2em;
+      font-weight: 900;
+      line-height: 0.78;
+      float: left;
+      margin-right: 2mm;
+      margin-top: 1.5mm;
+      color: var(--accent);
+    }
 
-      .article-footer {
-        margin-top: auto;
-        padding-top: 4mm;
-        border-top: 1px solid var(--rule);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 4mm;
-      }
+    .article-footer {
+      margin-top: auto;
+      padding-top: 4mm;
+      border-top: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4mm;
+    }
 
-      .article-footer-label {
-        font-family: var(--font-mono);
-        font-size: 5.5pt;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--ink-muted);
-        white-space: nowrap;
-      }
+    .article-footer-label {
+      font-family: var(--font-mono);
+      font-size: 5.5pt;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      white-space: nowrap;
+    }
 
-      .article-footer-url {
-        font-family: var(--font-mono);
-        font-size: 5.5pt;
-        color: var(--accent);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        flex: 1;
-        text-align: right;
-      }
+    .article-footer-url {
+      font-family: var(--font-mono);
+      font-size: 5.5pt;
+      color: var(--accent);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      text-align: right;
+    }
 
-      @media print {
-        body {
-          background: none;
-          padding: 0;
-        }
-        .page-preview {
-          box-shadow: none;
-          margin: 0;
-        }
-        .page-break {
-          page-break-after: always;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- ── COVER ──────────────────────────────────────────────── -->
-    <div class="page-preview">
-      <div class="cover">
-        <div class="cover-accent-top"></div>
-        <div class="cover-corner cover-corner--tl"></div>
-        <div class="cover-corner cover-corner--br"></div>
-        <div class="cover-inner">
-          <p class="cover-eyebrow">Your personalised tech briefing</p>
-          <h1 class="cover-title">Serifdigest</h1>
-          <div class="cover-rule"></div>
-          <p class="cover-date">February 24, 2026</p>
-          <p class="cover-tagline">Curated · Concise · Informed</p>
+    @media print {
+      body { background: none; padding: 0; }
+      .page-preview { box-shadow: none; margin: 0; }
+      .page-break { page-break-after: always; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── COVER ──────────────────────────────────────────────── -->
+  <div class="page-preview">
+    <div class="cover">
+      <div class="cover-accent-top"></div>
+      <div class="cover-corner cover-corner--tl"></div>
+      <div class="cover-corner cover-corner--br"></div>
+      <div class="cover-inner">
+        <p class="cover-eyebrow">Your personalised tech briefing</p>
+        <h1 class="cover-title">Digest</h1>
+        <div class="cover-rule"></div>
+        <p class="cover-date">February 24, 2026</p>
+        <p class="cover-tagline">Curated · Concise · Informed</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ARTICLE PAGE (with image) ─────────────────────────── -->
+  <div class="page-preview">
+    <div class="article-page">
+      <div class="article-stripe"></div>
+      <div class="article-running-header">
+        <span class="article-running-brand">Digest</span>
+        <span class="article-running-date">February 24, 2026</span>
+      </div>
+      <div class="article-image">
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=80" alt="Tech circuit board" />
+      </div>
+      <div class="article-body">
+        <div class="article-meta">
+          <span class="article-feed-badge">The Verge</span>
+          <span class="article-meta-date">February 24, 2026</span>
+        </div>
+        <h2 class="article-title">OpenAI Releases GPT-5 With Dramatic Improvements in Reasoning and Multimodal Tasks</h2>
+        <p class="article-byline">By Sarah Chen &amp; Marcus Webb</p>
+        <p class="article-para">OpenAI has officially unveiled GPT-5, its most capable language model to date, claiming significant breakthroughs in multi-step reasoning, code generation, and real-time multimodal interaction. The announcement was made during a livestreamed event from San Francisco, drawing hundreds of thousands of simultaneous viewers.</p>
+        <p class="article-para">Independent benchmarks corroborate the company's claims, placing GPT-5 ahead of competing systems on a broad suite of professional tasks including legal analysis, scientific literature review, and software architecture design. Researchers at Stanford noted particular improvements in the model's handling of long-context tasks, sustaining coherence over documents exceeding 200,000 tokens.</p>
+        <p class="article-para">The release arrives amid intensifying competition from Google DeepMind, Anthropic, and a growing cluster of open-source efforts. Analysts expect the launch to trigger a new round of capability announcements from rivals within the coming weeks.</p>
+        <div class="article-footer">
+          <span class="article-footer-label">Original Source</span>
+          <span class="article-footer-url">https://www.theverge.com/2026/2/24/openai-gpt5-release-reasoning-multimodal</span>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ── ARTICLE PAGE (with image) ─────────────────────────── -->
-    <div class="page-preview">
-      <div class="article-page">
-        <div class="article-stripe"></div>
-        <div class="article-running-header">
-          <span class="article-running-brand">Serifdigest</span>
-          <span class="article-running-date">February 24, 2026</span>
+  <!-- ── ARTICLE PAGE (no image) ───────────────────────────── -->
+  <div class="page-preview">
+    <div class="article-page">
+      <div class="article-stripe"></div>
+      <div class="article-running-header">
+        <span class="article-running-brand">Digest</span>
+        <span class="article-running-date">February 24, 2026</span>
+      </div>
+      <div class="article-body">
+        <div class="article-meta">
+          <span class="article-feed-badge">Ars Technica</span>
+          <span class="article-meta-date">February 23, 2026</span>
         </div>
-        <div class="article-image">
-          <img
-            src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=80"
-            alt="Tech circuit board"
-          />
-        </div>
-        <div class="article-body">
-          <div class="article-meta">
-            <span class="article-feed-badge">The Verge</span>
-            <span class="article-meta-date">February 24, 2026</span>
-          </div>
-          <h2 class="article-title">
-            OpenAI Releases GPT-5 With Dramatic Improvements in Reasoning and
-            Multimodal Tasks
-          </h2>
-          <p class="article-byline">By Sarah Chen &amp; Marcus Webb</p>
-          <p class="article-para">
-            OpenAI has officially unveiled GPT-5, its most capable language
-            model to date, claiming significant breakthroughs in multi-step
-            reasoning, code generation, and real-time multimodal interaction.
-            The announcement was made during a livestreamed event from San
-            Francisco, drawing hundreds of thousands of simultaneous viewers.
-          </p>
-          <p class="article-para">
-            Independent benchmarks corroborate the company's claims, placing
-            GPT-5 ahead of competing systems on a broad suite of professional
-            tasks including legal analysis, scientific literature review, and
-            software architecture design. Researchers at Stanford noted
-            particular improvements in the model's handling of long-context
-            tasks, sustaining coherence over documents exceeding 200,000 tokens.
-          </p>
-          <p class="article-para">
-            The release arrives amid intensifying competition from Google
-            DeepMind, Anthropic, and a growing cluster of open-source efforts.
-            Analysts expect the launch to trigger a new round of capability
-            announcements from rivals within the coming weeks.
-          </p>
-          <div class="article-footer">
-            <span class="article-footer-label">Original Source</span>
-            <span class="article-footer-url"
-              >https://www.theverge.com/2026/2/24/openai-gpt5-release-reasoning-multimodal</span
-            >
-          </div>
+        <h2 class="article-title">Europe's New AI Liability Directive Puts Burden of Proof on Developers</h2>
+        <p class="article-byline">By Elisa Fontaine</p>
+        <p class="article-para">The European Parliament has passed a sweeping AI liability directive that fundamentally shifts how responsibility is assigned when automated systems cause harm. Under the new rules, manufacturers and deployers of high-risk AI must demonstrate their systems did not cause damage, rather than leaving that burden to injured parties.</p>
+        <p class="article-para">Legal experts describe the legislation as the most consequential piece of AI governance since GDPR, warning that compliance costs could reshape product development timelines for companies operating in the EU market. The directive applies to a broad range of sectors including healthcare, financial services, hiring platforms, and critical infrastructure.</p>
+        <p class="article-para">Industry groups have pledged to challenge several provisions before the directive enters force in late 2027, arguing that some disclosure requirements conflict with trade secret protections. The Commission has indicated it will publish detailed implementation guidance by mid-year.</p>
+        <p class="article-para">The vote comes just one week after a high-profile incident in which an autonomous logistics system was linked to a warehouse accident in the Netherlands, injecting fresh urgency into the legislative timeline.</p>
+        <div class="article-footer">
+          <span class="article-footer-label">Original Source</span>
+          <span class="article-footer-url">https://arstechnica.com/2026/02/eu-ai-liability-directive-burden-proof-developers</span>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ── ARTICLE PAGE (no image) ───────────────────────────── -->
-    <div class="page-preview">
-      <div class="article-page">
-        <div class="article-stripe"></div>
-        <div class="article-running-header">
-          <span class="article-running-brand">Serifdigest</span>
-          <span class="article-running-date">February 24, 2026</span>
-        </div>
-        <div class="article-body">
-          <div class="article-meta">
-            <span class="article-feed-badge">Ars Technica</span>
-            <span class="article-meta-date">February 23, 2026</span>
-          </div>
-          <h2 class="article-title">
-            Europe's New AI Liability Directive Puts Burden of Proof on
-            Developers
-          </h2>
-          <p class="article-byline">By Elisa Fontaine</p>
-          <p class="article-para">
-            The European Parliament has passed a sweeping AI liability directive
-            that fundamentally shifts how responsibility is assigned when
-            automated systems cause harm. Under the new rules, manufacturers and
-            deployers of high-risk AI must demonstrate their systems did not
-            cause damage, rather than leaving that burden to injured parties.
-          </p>
-          <p class="article-para">
-            Legal experts describe the legislation as the most consequential
-            piece of AI governance since GDPR, warning that compliance costs
-            could reshape product development timelines for companies operating
-            in the EU market. The directive applies to a broad range of sectors
-            including healthcare, financial services, hiring platforms, and
-            critical infrastructure.
-          </p>
-          <p class="article-para">
-            Industry groups have pledged to challenge several provisions before
-            the directive enters force in late 2027, arguing that some
-            disclosure requirements conflict with trade secret protections. The
-            Commission has indicated it will publish detailed implementation
-            guidance by mid-year.
-          </p>
-          <p class="article-para">
-            The vote comes just one week after a high-profile incident in which
-            an autonomous logistics system was linked to a warehouse accident in
-            the Netherlands, injecting fresh urgency into the legislative
-            timeline.
-          </p>
-          <div class="article-footer">
-            <span class="article-footer-label">Original Source</span>
-            <span class="article-footer-url"
-              >https://arstechnica.com/2026/02/eu-ai-liability-directive-burden-proof-developers</span
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-  </body>
+</body>
 </html>

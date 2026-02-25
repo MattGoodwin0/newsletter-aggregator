@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Serifdigest — {{ date.strftime("%B %d, %Y") }}</title>
+    <title>Digest — {{ date.strftime("%B %d, %Y") }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -27,7 +27,7 @@
         --rule: #d4c9c0;
         --cream: #faf7f4;
         --paper: #eee8e1;
-        --accent: #c0392b;
+        --accent: #8a7f7a;
 
         --font-display: "Playfair Display", Georgia, serif;
         --font-body: "Source Serif 4", Georgia, serif;
@@ -71,27 +71,15 @@
       }
 
       /* Subtle grid texture */
-      .cover::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image:
-          repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 39px,
-            rgba(255, 255, 255, 0.035) 39px,
-            rgba(255, 255, 255, 0.035) 40px
-          ),
-          repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 39px,
-            rgba(255, 255, 255, 0.035) 39px,
-            rgba(255, 255, 255, 0.035) 40px
-          );
-        pointer-events: none;
-      }
+      /* .cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.035) 39px, rgba(255,255,255,0.035) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.035) 39px, rgba(255,255,255,0.035) 40px);
+      pointer-events: none;
+    } */
 
       /* Top accent bar */
       .cover-accent-top {

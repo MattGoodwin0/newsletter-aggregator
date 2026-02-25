@@ -15,7 +15,8 @@ from newspaper import Article
 from email.utils import parsedate_to_datetime
 from jinja2 import Environment, FileSystemLoader
 from playwright.async_api import async_playwright
-
+import requests
+from bs4 import BeautifulSoup
 
 # ── NLTK bootstrap ────────────────────────────────────────────────────────────
 
@@ -73,36 +74,118 @@ def parse_entry_date(entry) -> Optional[datetime.datetime]:
     return None
 
 
+
+
+META_PRIORITY = [
+    "og:description",
+    "twitter:description",
+    "description"
+]
+
+AUTHOR_META_KEYS = [
+    "author",
+    "article:author"
+]
+
+IMAGE_META_KEYS = [
+    "og:image",
+    "twitter:image"
+]
+
+TITLE_META_KEYS = [
+    "og:title",
+    "twitter:title"
+]
+
+
+def extract_meta(soup: BeautifulSoup, keys):
+    for key in keys:
+        tag = soup.find("meta", property=key) or soup.find("meta", attrs={"name": key})
+        if tag and tag.get("content"):
+            return tag["content"].strip()
+    return None
+
+
+def extract_all_meta_authors(soup: BeautifulSoup):
+    authors = set()
+    for key in AUTHOR_META_KEYS:
+        for tag in soup.find_all("meta", attrs={"name": key}) + soup.find_all("meta", property=key):
+            if tag.get("content"):
+                authors.add(tag["content"].strip())
+    return list(authors)
+
+
 def scrape_article(url: str, summary_sentences: int = DEFAULT_SUMMARY_SENTENCES) -> Dict:
-    result: Dict = {"top_image": None, "summary": "", "authors": []}
+    result: Dict = {
+        "title": None,
+        "top_image": None,
+        "summary": "",
+        "authors": [],
+        "published_at": None,
+        "site_name": None
+    }
+
     try:
-        art = Article(url, browser_user_agent=(
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/124.0.0.0 Safari/537.36"
-        ))
-        art.download()
+        # --- Fetch raw HTML first ---
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            )
+        }
+        resp = requests.get(url, headers=headers, timeout=10)
+        resp.raise_for_status()
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        # --- META TAG EXTRACTION (PRIMARY) ---
+        result["title"]       = extract_meta(soup, TITLE_META_KEYS)
+        result["summary"]     = extract_meta(soup, META_PRIORITY) or ""
+        result["top_image"]   = extract_meta(soup, IMAGE_META_KEYS)
+        result["site_name"]   = extract_meta(soup, ["og:site_name"])
+        result["published_at"] = extract_meta(
+            soup,
+            ["article:published_time", "og:published_time", "pubdate"]
+        )
+        result["authors"] = extract_all_meta_authors(soup)
+
+        if result["summary"]:
+            result["summary"] = clean_text(result["summary"])
+
+        # --- NEWSPAPER3K FALLBACK ---
+        art = Article(url)
+        art.download(input_html=resp.text)
         art.parse()
 
-        result["top_image"] = art.top_image or None
-        result["authors"]   = art.authors or []
+        result["title"]     = result["title"] or art.title or None
+        result["top_image"] = result["top_image"] or art.top_image or None
+        result["authors"]   = result["authors"] or art.authors or []
 
-        try:
-            art.nlp()
-            if art.summary and len(art.summary) > 80:
-                result["summary"] = clean_text(art.summary)
-        except Exception:
-            pass
-
+        # --- NLP ONLY IF STILL NO SUMMARY ---
         if not result["summary"]:
-            paragraphs = [p.strip() for p in art.text.split("\n") if len(p.strip()) > 60]
-            result["summary"] = clean_text(" ".join(paragraphs[:summary_sentences]))
+            try:
+                art.nlp()
+                if art.summary and len(art.summary) > 80:
+                    result["summary"] = clean_text(art.summary)
+            except Exception:
+                pass
+
+        # --- TEXT FALLBACK ---
+        if not result["summary"]:
+            paragraphs = [
+                p.strip()
+                for p in art.text.split("\n")
+                if len(p.strip()) > 60
+            ]
+            result["summary"] = clean_text(
+                " ".join(paragraphs[:summary_sentences])
+            )
 
     except Exception as e:
         print(f"  [!] Could not scrape {url}: {e}")
 
     return result
-
 
 # ── Core fetch ────────────────────────────────────────────────────────────────
 
