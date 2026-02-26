@@ -12,3 +12,4 @@ python-dotenv==1.0.1
 lxml-html-clean==0.4.3
 requests
 beautifulsoup4
+flask-limiter

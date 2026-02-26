@@ -1,6 +1,6 @@
-"""
-Serifdigest API Server
-"""
+from dotenv import load_dotenv
+load_dotenv()
+
 
 import os
 import asyncio
@@ -9,13 +9,16 @@ import feedparser
 import requests
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
+
 from main import fetch_articles, build_pdf, scrape_article
+from security import init_security, require_api_key, validate_feed_urls, check_url_safe
 
 app = Flask(__name__)
 
-# In dev, allow all origins. Lock down via CORS_ORIGINS env var in production.
 _cors_origins = os.getenv("CORS_ORIGINS", "*")
 CORS(app, origins=_cors_origins, supports_credentials=False)
+
+limiter = init_security(app)
 
 # Realistic browser headers — many RSS endpoints 403 bot user-agents
 FETCH_HEADERS = {
@@ -31,18 +34,33 @@ FETCH_HEADERS = {
 }
 
 
+# ── Health ────────────────────────────────────────────────────────────────────
+# Public — no auth, no tight rate limit.  Used by uptime monitors.
+
 @app.get("/api/health")
+@require_api_key
+@limiter.limit("60/minute")
 def health():
     return jsonify({"status": "ok"})
 
 
+# ── Validate ──────────────────────────────────────────────────────────────────
+# Auth-protected.  Tighter limit because it makes real outbound HTTP calls.
+
 @app.post("/api/validate")
+@require_api_key
+@limiter.limit("30/hour")
 def validate():
     body = request.get_json(silent=True) or {}
     url  = (body.get("url") or "").strip()
 
     if not url:
         return jsonify({"error": "A feed URL is required."}), 400
+
+    # ── SSRF check before we touch the network ─────────────────────────────
+    safe, reason = check_url_safe(url)
+    if not safe:
+        return jsonify({"error": f"URL rejected: {reason}"}), 400
 
     report = {
         "url":    url,
@@ -104,9 +122,13 @@ def validate():
         report["status"] = "partial"
 
     # 4 — Scrapeable
-    sample_entry = next((e for e in entries[:5] if e.get("link")), None)
+    # Only scrape article URLs that also pass the SSRF check
+    sample_entry = next(
+        (e for e in entries[:5] if e.get("link") and check_url_safe(e["link"])[0]),
+        None,
+    )
     if not sample_entry:
-        report["checks"]["scrapeable"] = {"ok": False, "detail": "No article links in feed", "sample_title": ""}
+        report["checks"]["scrapeable"] = {"ok": False, "detail": "No safe article links in feed", "sample_title": ""}
         report["status"] = "partial" if report["status"] == "ok" else report["status"]
     else:
         sample_url   = sample_entry.get("link", "")
@@ -122,8 +144,8 @@ def validate():
             }
         else:
             report["checks"]["scrapeable"] = {
-                "ok": False,
-                "detail": "Could not extract body (paywalled or JS-rendered?)",
+                "ok":          False,
+                "detail":      "Could not extract body (paywalled or JS-rendered?)",
                 "sample_title": sample_title,
             }
             if report["status"] == "ok":
@@ -136,33 +158,58 @@ def validate():
     return jsonify(report)
 
 
+# ── Generate ──────────────────────────────────────────────────────────────────
+# Most expensive endpoint — tightest rate limit.
+
 @app.post("/api/generate")
+@require_api_key
+@limiter.limit("10/hour")
 def generate():
     body      = request.get_json(silent=True) or {}
     feeds     = body.get("feeds", [])
-    days_back = int(body.get("days_back", 3))
+    days_back = body.get("days_back", 3)
 
-    if not feeds:
-        return jsonify({"error": "At least one feed URL is required."}), 400
-    if not (1 <= days_back <= 30):
-        return jsonify({"error": "'days_back' must be between 1 and 30."}), 400
+    # ── Input validation ───────────────────────────────────────────────────
+    if not isinstance(days_back, int) or not (1 <= days_back <= 30):
+        return jsonify({"error": "'days_back' must be an integer between 1 and 30."}), 400
 
+    ok, err = validate_feed_urls(feeds)
+    if not ok:
+        return jsonify({"error": err}), 400
+
+    # ── Scrape ────────────────────────────────────────────────────────────
     try:
         articles = fetch_articles(feeds, days_back=days_back)
     except Exception as e:
         return jsonify({"error": f"Scraping failed: {str(e)}"}), 500
 
     if not articles:
-        return jsonify({"error": "No articles found."}), 404
+        return jsonify({"error": "No articles found in the requested time window."}), 404
 
+    # ── Build PDF & stream it back (temp file always cleaned up) ──────────
+    pdf_path = None
     try:
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
             pdf_path = tmp.name
         asyncio.run(build_pdf(articles, output_path=pdf_path))
+        return send_file(
+            pdf_path,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="Tech_Weekly_Pro.pdf",
+        )
     except Exception as e:
         return jsonify({"error": f"PDF generation failed: {str(e)}"}), 500
+    finally:
+        # Always clean up the temp file — even if send_file raises
+        if pdf_path and os.path.exists(pdf_path):
+            try:
+                os.unlink(pdf_path)
+            except OSError:
+                pass
 
-    return send_file(pdf_path, mimetype="application/pdf", as_attachment=True, download_name="Tech_Weekly_Pro.pdf")
+
+# ── Static (frontend) ─────────────────────────────────────────────────────────
 
 @app.get("/")
 def index():
@@ -172,5 +219,12 @@ def index():
 def static_files(path):
     return send_from_directory("../frontend/dist", path)
 
+
+# ── Entry point ───────────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5002)), debug=os.getenv("FLASK_DEBUG", "false") == "true")
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 5002)),
+        debug=os.getenv("FLASK_DEBUG", "false") == "true",
+    )
