@@ -10,6 +10,18 @@ const CHANGELOG = [
     changes: [
       {
         type: "new",
+        text: "Improvements to security and API traffic",
+      },
+    ],
+  },
+  {
+    version: "0.1.0",
+    date: "February 2026",
+    tag: "Previous",
+    dark: false,
+    changes: [
+      {
+        type: "new",
         text: "Web frontend — generator, validator, and about pages",
       },
       { type: "new", text: "Feed validator with 4-point health check" },

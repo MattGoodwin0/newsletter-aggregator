@@ -1,0 +1,27 @@
+name: Deploy to Droplet
+
+on:
+  push:
+    branches:
+      - main # deploy on push to main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DROPLET_DEPLOY_KEY }}
+
+      - name: Deploy to droplet
+        run: |
+          ssh -o StrictHostKeyChecking=no digest@YOUR_DROPLET_IP '
+            cd /home/digest/newsletter-aggregator &&
+            git reset --hard origin/main &&
+            ./deploy.sh
+          '

@@ -2,29 +2,39 @@
 security.py — API security middleware for Digest
 -------------------------------------------------
 Provides:
-  - API key authentication
-  - Rate limiting (via flask-limiter)
-  - SSRF protection (private IP / scheme blocking with DNS rebinding defence)
-  - Feed count & request body size limits
+  - CSRF token authentication (single-use + expiring)
+  - Rate limiting via flask-limiter
+  - SSRF protection (private IP / scheme blocking + DNS rebinding defence)
+  - Feed count and request body size limits
   - Malicious URL scraping prevention
 
-Usage:
-    from security import init_security, require_api_key, validate_feed_urls, check_url_safe
+Typical setup in server.py:
 
-    limiter = init_security(app)   # call once after app creation
+    from security import init_security, issue_csrf_token, require_csrf
+    from security import validate_feed_urls, check_url_safe
+
+    limiter = init_security(app)
+
+    @app.get("/api/csrf-token")
+    @limiter.limit("30/minute")
+    def get_token():
+        return jsonify({"token": issue_csrf_token()})
 
     @app.post("/api/generate")
-    @require_api_key
+    @require_csrf
     @limiter.limit("10/hour")
-    def generate(): ...
+    def generate():
+        ...
 """
 
 import os
+import time
+import secrets
 import socket
 import ipaddress
 import functools
 from urllib.parse import urlparse
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from flask import Flask, request, jsonify
 from flask_limiter import Limiter
@@ -33,27 +43,30 @@ from flask_limiter.util import get_remote_address
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-#: Comma-separated API keys in env var, e.g.  API_KEYS=key1,key2
-_ENV_KEY     = "API_KEYS"
-_HEADER_NAME = "Authorization"
+#: How long (seconds) a CSRF token remains valid after issue.
+#: User must complete their request within this window.
+TOKEN_TTL_SECONDS = 300   # 5 minutes
 
-#: Maximum feeds allowed per /api/generate request
+#: Header the Vite app sends the token in.
+CSRF_HEADER = "X-CSRF-Token"
+
+#: Maximum feeds allowed per /api/generate request.
 MAX_FEEDS = 10
 
-#: Maximum request body size in bytes (64 KB)
+#: Maximum request body size (64 KB) — stops payload bloat attacks.
 MAX_BODY_BYTES = 64 * 1024
 
-#: URL schemes we refuse to follow regardless of host
+#: URL schemes we refuse to follow regardless of host.
 _BLOCKED_SCHEMES = {"file", "ftp", "gopher", "dict", "ldap", "ldaps", "sftp", "tftp", "jar"}
 
-#: Private / reserved networks — both IPv4 and IPv6
+#: Private / reserved networks — both IPv4 and IPv6.
 _PRIVATE_NETWORKS = [
     # IPv4
     ipaddress.ip_network("0.0.0.0/8"),          # "This" network
     ipaddress.ip_network("10.0.0.0/8"),          # RFC-1918 private
     ipaddress.ip_network("100.64.0.0/10"),       # Shared address space (ISP NAT)
     ipaddress.ip_network("127.0.0.0/8"),         # Loopback
-    ipaddress.ip_network("169.254.0.0/16"),      # Link-local / cloud metadata (AWS, GCP)
+    ipaddress.ip_network("169.254.0.0/16"),      # Link-local / AWS & GCP metadata
     ipaddress.ip_network("172.16.0.0/12"),       # RFC-1918 private
     ipaddress.ip_network("192.0.0.0/24"),        # IETF protocol assignments
     ipaddress.ip_network("192.168.0.0/16"),      # RFC-1918 private
@@ -71,15 +84,94 @@ _PRIVATE_NETWORKS = [
 ]
 
 
-# ── Internal helpers ──────────────────────────────────────────────────────────
+# ── CSRF token store ──────────────────────────────────────────────────────────
+#
+# Simple in-memory dict: { token: expires_at_unix_timestamp }
+# Fine for a single-dyno deployment. If you ever scale to multiple dynos,
+# swap this for a Redis-backed store using RATELIMIT_STORAGE_URI.
 
-def _load_api_keys() -> set:
-    """Read keys from env var at call-time so rotation needs no restart."""
-    raw = os.getenv(_ENV_KEY, "").strip()
-    if not raw:
-        return set()
-    return {k.strip() for k in raw.split(",") if k.strip()}
+_token_store: Dict[str, float] = {}
 
+
+def _purge_expired_tokens() -> None:
+    """Remove stale tokens from the store (called on every issue + verify)."""
+    now = time.time()
+    expired = [t for t, exp in _token_store.items() if exp < now]
+    for t in expired:
+        del _token_store[t]
+
+
+def issue_csrf_token() -> str:
+    """
+    Generate a new single-use CSRF token, store it with an expiry timestamp,
+    and return the token string for the client.
+
+    Call this inside your /api/csrf-token route:
+
+        @app.get("/api/csrf-token")
+        @limiter.limit("30/minute")
+        def get_token():
+            return jsonify({"token": issue_csrf_token()})
+    """
+    _purge_expired_tokens()
+    token = secrets.token_hex(32)
+    _token_store[token] = time.time() + TOKEN_TTL_SECONDS
+    return token
+
+
+def _consume_csrf_token(token: str) -> bool:
+    """
+    Validate and immediately consume a CSRF token (one-time use).
+
+    Returns True if the token was valid and unexpired, False otherwise.
+    """
+    _purge_expired_tokens()
+
+    if not token or token not in _token_store:
+        return False
+
+    if time.time() > _token_store[token]:
+        del _token_store[token]
+        return False
+
+    # Valid — consume it so it can never be reused
+    del _token_store[token]
+    return True
+
+
+# ── CSRF decorator ────────────────────────────────────────────────────────────
+
+def require_csrf(fn):
+    """
+    Flask route decorator that enforces single-use CSRF token authentication.
+
+    The Vite app must:
+      1. Fetch a token from GET /api/csrf-token
+      2. Include it as:  X-CSRF-Token: <token>
+      3. Use it within TOKEN_TTL_SECONDS (default 5 minutes)
+
+    Tokens are single-use — consumed on first valid use, preventing replays.
+    Expired tokens in the store are purged automatically on each call.
+
+    Example:
+        @app.post("/api/generate")
+        @require_csrf
+        @limiter.limit("10/hour")
+        def generate(): ...
+    """
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        token = request.headers.get(CSRF_HEADER, "").strip()
+
+        if not _consume_csrf_token(token):
+            return jsonify({"error": "Unauthorized."}), 401
+
+        return fn(*args, **kwargs)
+
+    return wrapper
+
+
+# ── SSRF protection ───────────────────────────────────────────────────────────
 
 def _is_private_ip(ip_str: str) -> bool:
     """Return True if the IP falls within any blocked/private network."""
@@ -102,20 +194,19 @@ def _resolve_host(hostname: str) -> List[str]:
         return []
 
 
-# ── Public: URL safety check ─────────────────────────────────────────────────
-
 def check_url_safe(url: str) -> Tuple[bool, str]:
     """
     Validate that a URL is safe to fetch externally (SSRF prevention).
 
     Checks:
       1. Scheme is http/https and not in the explicit blocklist
-      2. Bare-IP literals that are private/reserved are rejected
-      3. Hostname is resolved and every returned IP is checked (DNS rebinding defence)
+      2. Bare IP literals that are private/reserved are rejected immediately
+      3. Hostname is resolved and every returned IP is checked
+         (defends against DNS rebinding attacks)
 
     Returns:
-        (True,  "")            — safe to fetch
-        (False, "reason …")    — must not be fetched
+        (True,  "")           — safe to fetch
+        (False, "reason …")   — must not be fetched
     """
     if not url or not isinstance(url, str):
         return False, "URL must be a non-empty string."
@@ -144,7 +235,7 @@ def check_url_safe(url: str) -> Tuple[bool, str]:
     except ValueError:
         pass  # not a bare IP literal — fall through to DNS resolution
 
-    # Resolve hostname → check all returned IPs (defends against DNS rebinding)
+    # Resolve hostname → check all returned IPs (DNS rebinding defence)
     resolved_ips = _resolve_host(hostname)
     if not resolved_ips:
         return False, f"Hostname '{hostname}' could not be resolved."
@@ -176,79 +267,41 @@ def validate_feed_urls(urls: List[str]) -> Tuple[bool, str]:
     return True, ""
 
 
-# ── Public: authentication decorator ─────────────────────────────────────────
-
-def require_api_key(fn):
-    """
-    Flask route decorator that enforces X-API-Key header authentication.
-
-    Keys are loaded from the API_KEYS env var on every call, meaning you
-    can rotate keys by updating the env var — no server restart required.
-
-    Rotation procedure (zero-downtime):
-        1. Add new key:   API_KEYS=old_key,new_key
-        2. Update clients to send new_key
-        3. Remove old key: API_KEYS=new_key
-
-    If API_KEYS is unset the decorator logs a loud warning and fails open
-    so local development still works without needing an env file.
-
-    Example:
-        @app.post("/api/generate")
-        @require_api_key
-        def generate(): ...
-    """
-    @functools.wraps(fn)
-    def wrapper(*args, **kwargs):
-        keys = _load_api_keys()
-
-        if not keys:
-            import warnings
-            warnings.warn(
-                f"[security] {_ENV_KEY} is not set — "
-                "API key enforcement is DISABLED. "
-                "Set this env var before deploying to production.",
-                stacklevel=2,
-            )
-            return fn(*args, **kwargs)
-
-        auth_header = request.headers.get(_HEADER_NAME, "").strip()
-        parts       = auth_header.split(" ", 1)
-        provided    = parts[1].strip() if (len(parts) == 2 and parts[0].lower() == "bearer") else ""
-
-        if not provided or provided not in keys:
-            # Generic message — don't reveal whether the key exists or not
-            return jsonify({"error": "Unauthorized."}), 401
-
-        return fn(*args, **kwargs)
-
-    return wrapper
-
-
-# ── Public: limiter + body-size init ─────────────────────────────────────────
+# ── Flask-Limiter init ────────────────────────────────────────────────────────
 
 def init_security(app: Flask) -> Limiter:
     """
-    Attach Flask-Limiter to the app and set the request body size limit.
+    Attach Flask-Limiter to the app and enforce a request body size limit.
 
     Call once immediately after creating the Flask app:
 
         app = Flask(__name__)
         limiter = init_security(app)
 
-    Returns the Limiter instance so routes can apply per-endpoint limits:
+    Returns the Limiter instance so routes can apply per-endpoint overrides:
 
         @app.post("/api/generate")
-        @require_api_key
+        @require_csrf
         @limiter.limit("10/hour")
         def generate(): ...
 
     Environment variables:
-        RATELIMIT_STORAGE_URI   Redis URL for distributed limiting
-                                (default: in-process memory — fine for a
-                                single-dyno indie deployment)
-        API_KEYS                Comma-separated valid API keys
+        RATELIMIT_STORAGE_URI   Redis URL for distributed rate limiting.
+                                Defaults to in-process memory — perfectly
+                                fine for a single-dyno indie deployment.
+        FLASK_SECRET_KEY        Required for session support. Generate with:
+                                  openssl rand -hex 32
     """
+
+    # Warn loudly if secret key is missing
+    if not app.secret_key and not os.getenv("FLASK_SECRET_KEY"):
+        import warnings
+        warnings.warn(
+            "[security] FLASK_SECRET_KEY is not set. "
+            "Set this env var before deploying to production.",
+            stacklevel=2,
+        )
+    app.secret_key = app.secret_key or os.getenv("FLASK_SECRET_KEY")
 
     # ── Body size cap ──────────────────────────────────────────────────────
     app.config["MAX_CONTENT_LENGTH"] = MAX_BODY_BYTES
@@ -263,7 +316,6 @@ def init_security(app: Flask) -> Limiter:
     limiter = Limiter(
         key_func=get_remote_address,
         app=app,
-        # Sane global default — overridden per route where needed
         default_limits=["200 per hour"],
         storage_uri=os.getenv("RATELIMIT_STORAGE_URI", "memory://"),
     )

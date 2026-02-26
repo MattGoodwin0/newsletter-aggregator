@@ -11,7 +11,7 @@ from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 
 from main import fetch_articles, build_pdf, scrape_article
-from security import init_security, require_api_key, validate_feed_urls, check_url_safe
+from security import init_security, require_csrf, validate_feed_urls, check_url_safe, issue_csrf_token
 
 app = Flask(__name__)
 
@@ -38,17 +38,21 @@ FETCH_HEADERS = {
 # Public — no auth, no tight rate limit.  Used by uptime monitors.
 
 @app.get("/api/health")
-@require_api_key
+@require_csrf
 @limiter.limit("60/minute")
 def health():
     return jsonify({"status": "ok"})
 
+@app.get("/api/csrf-token")
+@limiter.limit("30/minute")
+def get_csrf_token():
+    return jsonify({"token": issue_csrf_token()})
 
 # ── Validate ──────────────────────────────────────────────────────────────────
 # Auth-protected.  Tighter limit because it makes real outbound HTTP calls.
 
 @app.post("/api/validate")
-@require_api_key
+@require_csrf
 @limiter.limit("30/hour")
 def validate():
     body = request.get_json(silent=True) or {}
@@ -162,7 +166,7 @@ def validate():
 # Most expensive endpoint — tightest rate limit.
 
 @app.post("/api/generate")
-@require_api_key
+@require_csrf
 @limiter.limit("10/hour")
 def generate():
     body      = request.get_json(silent=True) or {}
