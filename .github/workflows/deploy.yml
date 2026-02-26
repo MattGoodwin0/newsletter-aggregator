@@ -20,7 +20,7 @@ jobs:
 
       - name: Deploy to droplet
         run: |
-          ssh -o StrictHostKeyChecking=no digest@YOUR_DROPLET_IP '
+          ssh -o StrictHostKeyChecking=no digest@${{ secrets.DROPLET_IP }} '
             cd /home/digest/newsletter-aggregator &&
             git reset --hard origin/main &&
             ./deploy.sh
