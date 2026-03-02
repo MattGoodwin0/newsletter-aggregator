@@ -21,7 +21,6 @@ const PRESETS = [
       "https://techcrunch.com/feed/",
       "https://www.theverge.com/rss/index.xml",
       "https://www.wired.com/feed/rss",
-      "https://www.techrepublic.com/rssfeeds/articles/", "https://www.techrepublic.com/rssfeeds/", "http://www.fastcodesign.com/rss.xml", "http://www.forbes.com/entrepreneurs/index.xml", "http://feeds.slashgear.com/slashgear", "http://www.engadget.com/rss-full.xml", "https://techcrunch.com/feed/", "https://blog.pragmaticengineer.com/rss/", "https://medium.com/feed/airtable-eng", "https://medium.com/feed/medium-eng", "https://medium.com/feed/paypal-engineering", "https://medium.com/feed/pinterest-engineering", "http://engineering.grab.com/feed.xml", "https://slack.engineering/feed", "http://githubengineering.com/atom.xml", "https://code.facebook.com/posts/rss", "https://developer.atlassian.com/blog/feed.xml", "http://labs.spotify.com/feed/", "https://developer.nvidia.com/blog/feed", "https://deepmind.com/blog/feed/basic/", "http://news.mit.edu/rss/topic/artificial-intelligence2", "https://openai.com/news/engineering/rss.xml", "http://googleresearch.blogspot.com/atom.xml"
     ],
   },
   // {
